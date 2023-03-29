@@ -1,13 +1,13 @@
 args <- commandArgs(trailingOnly = TRUE)
 
-setwd("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/data")
+#setwd("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/data")
 bulk_expr <- as.matrix(read.delim(args[1], row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
 gene_lengths <- read.delim(args[2], row.names = 1, header = F, as.is = T, check.names = F, sep = "\t")
 probe_annotation <- read.delim(args[3], row.names = 2, header = T, as.is = T, check.names = F, sep = "\t")
 
-bulk_expr <- as.matrix(read.delim(gzfile("gene.counts-LLDBIOSSamples.LLD_subset.txt.gz"), row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
-gene_lengths <- read.delim("Homo_sapiens.GRCh37.75.gene_lengths.txt.gz", row.names = 1, header = F, as.is = T, check.names = F, sep = "\t")
-probe_annotation <- read.delim("ProbeAnnotation_STARv2.3.0e_Ensembl71.txt.gz", row.names = 2, header = T, as.is = T, check.names = F, sep = "\t")
+#bulk_expr <- as.matrix(read.delim(gzfile("gene.counts-LLDBIOSSamples.LLD_subset.txt.gz"), row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+#gene_lengths <- read.delim("Homo_sapiens.GRCh37.75.gene_lengths.txt.gz", row.names = 1, header = F, as.is = T, check.names = F, sep = "\t")
+#probe_annotation <- read.delim("ProbeAnnotation_STARv2.3.0e_Ensembl71.txt.gz", row.names = 2, header = T, as.is = T, check.names = F, sep = "\t")
 
 # TPM normalize
 bulk_expr <- bulk_expr[which(rowSums(bulk_expr) != 0),]
@@ -33,8 +33,8 @@ n_occur <- data.frame(table(new_names))
 dups <- n_occur[n_occur$Freq > 1,"new_names"]
 bulk_expr_tpm <- bulk_expr_tpm[!row.names(bulk_expr_tpm) %in% dups,]
 
-write.table(bulk_expr_tpm, file = paste0(args[1], ".TPM.dedup.txt"), sep = "\t", quote = F, col.names = NA)
-write.table(bulk_expr_tpm, file = paste0("gene.counts-LLDBIOSSamples.LLD_subset.txt.gz", ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
+write.table(bulk_expr_tpm, file = paste0(args[1], ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
+#write.table(bulk_expr_tpm, file = paste0("gene.counts-LLDBIOSSamples.LLD_subset.txt.gz", ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
 
 
 
