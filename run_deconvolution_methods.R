@@ -6,8 +6,8 @@ setwd("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/")
 bulk_expr_tpm <- as.matrix(read.delim("data/gene.counts-LLDBIOSSamples.LLD_subset.txt.gz.TPM.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
 cell_counts1 <- na.omit(as.matrix(read.delim("data/LLD_cell_counts.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t")))
 cell_counts2 <- read.delim("data/LLD_scrnaseq_cell_counts_perc.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t")
-lm22 <- as.matrix(read.delim("data/LM22.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
-abis <- as.matrix(read.delim("data/ABIS_sigmatrixRNAseq.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+lm22 <- as.matrix(read.delim("../v1/data/LM22.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+abis <- as.matrix(read.delim("../v1/data/ABIS_sigmatrixRNAseq.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
 
 sigList = list(as.matrix(lm22), as.matrix(abis))
 abis <- na.omit(abis)
@@ -16,17 +16,32 @@ abis <- na.omit(abis)
 decon_abis <- deconvolute(m = bulk_expr_tpm, sigMatrix = abis, methods = "nnls")
 decon_lm22 <- deconvolute(m = bulk_expr_tpm, sigMatrix = lm22, methods = "nnls")
 
-decon_abis <- decon_abis[,colSums(decon_abis) > 0]
-decon_lm22 <- decon_lm22[,colSums(decon_lm22) > 0]
-write.table(decon_abis$proportions$nnls_sig1, file = "cell_counts/LLD.TPM.nnls.ABIS.txt", sep = "\t", quote = F, col.names = NA)
-write.table(decon_lm22$proportions$nnls_sig1, file = "cell_counts/LLD.TPM.nnls.LM22.txt", sep = "\t", quote = F, col.names = NA)
+decon_dtangle_abis <- deconvolute(m = bulk_expr_tpm, sigMatrix = abis, methods = "dtangle")
+decon_dtangle_lm22 <- deconvolute(m = bulk_expr_tpm, sigMatrix = lm22, methods = "dtangle")
+
+decon_abis_res <- decon_abis$proportions$nnls_sig1
+decon_abis_res <- decon_abis_res[,colSums(decon_abis_res) > 0]
+decon_lm22_res <- decon_lm22$proportions$nnls_sig1
+decon_lm22_res <- decon_lm22_res[,colSums(decon_lm22_res) > 0]
+
+decon_dtangle_abis_res <- decon_dtangle_abis$proportions$dtangle_sig1
+decon_dtangle_abis_res <- decon_dtangle_abis_res[,colSums(decon_dtangle_abis_res) > 0]
+
+decon_dtangle_lm22_res <- decon_dtangle_lm22$proportions$dtangle_sig1
+decon_dtangle_lm22_res <- decon_dtangle_lm22_res[,colSums(decon_dtangle_lm22_res) > 0]
+
+write.table(decon_abis_res, file = "cell_counts/LLD.TPM.nnls.ABIS.txt", sep = "\t", quote = F, col.names = NA)
+write.table(decon_lm22_res, file = "cell_counts/LLD.TPM.nnls.LM22.txt", sep = "\t", quote = F, col.names = NA)
+
+write.table(decon_dtangle_abis_res, file = "cell_counts/LLD.TPM.dtangle.ABIS.txt", sep = "\t", quote = F, col.names = NA)
+write.table(decon_dtangle_lm22_res, file = "cell_counts/LLD.TPM.dtangle.LM22.txt", sep = "\t", quote = F, col.names = NA)
 
 #
 # EPIC
 #
 library(EPIC)
 out <- EPIC(bulk = bulk_expr_tpm)
-write.table(out$cellFraction, file = "cell_counts/LLD.TPM.EPIC.txt", sep = "\t", quote = F, col.names = NA)
+write.table(out$cellFraction, file = "cell_counts/500FG.TPM.EPIC.txt", sep = "\t", quote = F, col.names = NA)
 
 
 nnls_abis <- read.delim("cell_counts/LLD.TPM.nnls.ABIS.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t")

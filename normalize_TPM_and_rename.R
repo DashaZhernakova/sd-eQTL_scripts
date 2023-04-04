@@ -33,7 +33,7 @@ n_occur <- data.frame(table(new_names))
 dups <- n_occur[n_occur$Freq > 1,"new_names"]
 bulk_expr_tpm <- bulk_expr_tpm[!row.names(bulk_expr_tpm) %in% dups,]
 
-write.table(bulk_expr_tpm, file = paste0(args[1], ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
+write.table(na.omit(bulk_expr_tpm), file = paste0(args[1], ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
 #write.table(bulk_expr_tpm, file = paste0("gene.counts-LLDBIOSSamples.LLD_subset.txt.gz", ".TPM.txt"), sep = "\t", quote = F, col.names = NA)
 
 
