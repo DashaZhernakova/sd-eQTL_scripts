@@ -42,8 +42,8 @@ geno2 <- geno_m[ids, ]
 sex2 <- sex[ids,]
 
 # Read eQTLs to test:
-eqtls_full <- read.delim(eqtls_fname, check.names = F, header = T)
-eqtls <- eqtls_full[eqtls_full$SNP %in% colnames(geno),]
+eqtls_full <- read.delim(eqtls_fname, check.names = F, header = T, as.is = T)
+eqtls <- eqtls_full[eqtls_full$SNP %in% colnames(geno2),]
 cat("Read ", nrow(eqtls), " eQTLs")
 
 # Run analysis
@@ -53,9 +53,9 @@ cnt <- 1
 for (e in 1:nrow(eqtls)){
   gene <- eqtls[e, "Gene"]
   snp <- eqtls[e, "SNP"]
-  
+  #cat(gene, snp,"\n")
   if (gene %in% colnames(expr_noadj2) & snp %in% colnames(geno2)){
-    m <- as.data.frame(cbind(expr_noadj2[, gene], geno2[, snp], sex2[ids,]))
+    m <- as.data.frame(cbind(expr_noadj2[, gene], geno2[, snp], sex2))
     colnames(m) <- c("gene", "dosage", colnames(sex))
     colnames(m) <- gsub("gender_F1M2", "sex", colnames(m))
     row.names(m) <- ids
