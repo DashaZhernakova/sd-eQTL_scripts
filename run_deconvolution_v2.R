@@ -5,9 +5,13 @@ library(dplyr)
 library(tidyverse)
 
 bulk_expr_tpm <- as.matrix(read.delim(args[1], row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
-lm22 <- as.matrix(read.delim(args[2], row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
-abis <- as.matrix(read.delim(args[3], row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
-out_basepath <- args[4]
+out_basepath <- args[2]
+
+bulk_expr_tpm <- as.matrix(read.delim("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v3/data/LLS_660Q.gene_read_counts_BIOS_and_LLD_passQC.tsv.TPM.txt.gz", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+out_basepath <-"/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v3/cell_counts/LLS_660Q"
+lm22 <- as.matrix(read.delim("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/data/LM22.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+abis <- as.matrix(read.delim("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/data/ABIS_sigmatrixRNAseq.txt", row.names = 1, header = T, as.is = T, check.names = F, sep = "\t"))
+
 
 sigList = list(as.matrix(lm22), as.matrix(abis))
 abis <- na.omit(abis)

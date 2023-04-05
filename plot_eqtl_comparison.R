@@ -26,3 +26,19 @@ p3 <- ggplot(res_wide, aes(x = EPIC, y = EPIC.PCs)) + geom_point()
 p4 <- ggplot(res_wide, aes(x = deconcell, y = deconcell.PCs)) + geom_point()
 (p1 + p2) / (p3 + p4)
 dev.off()
+
+
+res_wide[res_wide$nnls.ABIS < -4,]
+
+unlist(strsplit(res[res$P < 0.0001, "id"], ":"))
+
+
+
+d <- read.delim("benchmark.txt", sep = "\t", as.is = T, check.names = F)
+pdf("BIOS_benchmark.pdf")
+ggplot(d, aes(x = method)) + geom_boxplot(aes(y = fraction)) + facet_grid(rows = vars(cohort)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggplot(d, aes(x = method, y = fraction)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+ggplot(d, aes(x = method)) + geom_boxplot(aes(y = num_replicated)) + facet_grid(rows = vars(cohort)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+ggplot(d, aes(x = method, y = num_replicated)) + geom_boxplot() + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+

@@ -2,14 +2,15 @@ args <- commandArgs(trailingOnly = TRUE)
 library(dplyr)
 library(patchwork)
 
-setwd("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/")
+setwd("/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v3/")
  
- 
-expr_fname <- "data/LLD_gene_read_counts.TMM.ProbesCentered.SamplesZTransformed.txt.gz"
-geno_fname <- "data/LL.eqtl_genotypes.filtered.top.dosages.txt.gz"
-gte_fname <- "data/LLD_samples_3cols.txt"
-covar_fname <- "data/LLD_sex+cell_counts.txt"
-eqtls_fname <- "eQTLs/LL_inter_res.deconcell.txt"
+cohort="LLS_660Q"
+expr_fname <- paste0("data/", cohort, ".gene_read_counts_BIOS_and_LLD_passQC.TMM.ProbesCentered.SamplesZTransformed.txt.gz")
+geno_fname <- paste0("data/", cohort, ".eqtl_genotypes.filtered.dosages.txt.gz")
+gte_fname <- paste0("data/", cohort, "_samples.txt")
+covar_fname <- "data/BIOS_cell_percentages+sex.txt"
+
+
 #out_fname <- paste0(eqtls_fname, ".tested_LL_cellcounts.txt")
  
 # expr_fname <- args[1]
@@ -24,7 +25,7 @@ expr_noadj <- as.data.frame(t(read.delim(gzfile(expr_fname), check.names = F, he
 geno <- as.data.frame(t(read.delim(gzfile(geno_fname), check.names = F, header = T, row.names = 1)))
 gte <- read.delim(gte_fname, check.names = F, header = F)
 sex <- read.delim(covar_fname, check.names = F, header = T, row.names = 1)
-sex <- na.omit(sex)
+
 # rename expression sample ids to genotype sample ids
 geno_m <- geno[match(gte[,2], row.names(geno), nomatch = 0),]
 gte_m <- gte[match(row.names(geno_m), gte[,2], nomatch = 0),]
@@ -38,19 +39,20 @@ expr_noadj2 <- expr_noadj[ids,]
 geno2 <- geno_m[ids, ]
 sex2 <- sex[ids,]
 
-filenames <- list.files(path="/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v1/eQTLs/", pattern="*txt", full.names=TRUE, recursive=FALSE)
+filenames <- list.files(path="/Users/Dasha/work/UMCG/data/gender_differences/eQTLgen/v3/eQTLs/", pattern=glob2rx(paste0(cohort, "*txt")), full.names=TRUE)
 
 for (eqtls_fname in filenames){
   
 # Read eQTLs to test:
 eqtls_full <- read.delim(eqtls_fname, check.names = F, header = T)
-cat("Read ", nrow(eqtls), " eQTLs")
+#cat("Read ", nrow(eqtls), " eQTLs")
 #eqtls <- eqtls_full
 eqtls <- eqtls_full[eqtls_full[,"p_geno:sex"] < 0.001,]
-
+eqtls <- na.omit(eqtls)
 res <- data.frame(gene = character(), snp = character(), decon_inter_p = double(), decon_inter_b = double(), counts_inter_p = double(), counts_inter_b = double(), stringsAsFactors = F)
 cnt = 1
 for (e in 1:nrow(eqtls)){
+
   gene <- eqtls[e, "gene"]
   snp <- eqtls[e, "snp"]
   #cat(gene, snp, "\n")
@@ -58,6 +60,7 @@ for (e in 1:nrow(eqtls)){
   colnames(m) <- c("gene", "dosage", colnames(sex))
   colnames(m) <- gsub("gender_F1M2", "sex", colnames(m))
   row.names(m) <- ids
+  m <- Filter(function(x)!all(is.na(x)), m)
   m$sex <- as.factor(m$sex)
   lm_fit <- lm(gene ~ . + sex*(.) + dosage*(.) , data = m)
   summary(lm_fit)
@@ -71,7 +74,7 @@ for (e in 1:nrow(eqtls)){
   res[cnt, "counts_inter_b"] <- coef["dosage:sex2",1]
   cnt <- cnt + 1
 }
-paste(eqtls_fname, nrow(eqtls), nrow(res[res$counts_inter_p < 0.05,]), formatC(cor(res$decon_inter_b, res$counts_inter_b), digits = 3))
+cat(eqtls_fname, nrow(eqtls), nrow(res[res$counts_inter_p < 0.05,]), nrow(res[res$counts_inter_p < 0.05,])/nrow(eqtls), formatC(cor(res$decon_inter_b, res$counts_inter_b), digits = 3), "\n")
 
 }
 
